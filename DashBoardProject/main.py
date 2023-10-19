@@ -27,13 +27,21 @@ def find_variable_locations(data_dict):
     # Initialize a dictionary to store variable locations
     variable_locations = {}
 
-    # Iterate through each file's data
+    # Iterate through each file's data to collect unique variable names
+    unique_variables = set()
+    for data in data_dict.values():
+        unique_variables.update(data.keys())
+
+    # Initialize the variable locations dictionary with the unique variable names
+    for variable in unique_variables:
+        variable_locations[variable] = []
+        print(variable)
+
+    # Append the file names to each respective variable
     for filename, data in data_dict.items():
-        for variable in data.keys():
-            if variable in variable_locations:
+        for variable in unique_variables:
+            if variable in data:
                 variable_locations[variable].append(filename)
-            else:
-                variable_locations[variable] = [filename]
 
     return variable_locations
 
@@ -62,10 +70,10 @@ def main():
 
     # Now you have data from all CSV files in data_dict for comparison or future use
     # For example, you can access data from a specific file using data_dict["filename.csv"]
-    common_variables = find_variable_locations(data_dict)
-    for variable in common_variables:
-        print(f"\n{variable} can be found in files:")
-        print(common_variables[variable])
+    variable_locations = find_variable_locations(data_dict)
+    print("\nVariable Locations:")
+    for var, files in variable_locations.items():
+        print(f"{var} is found in: {', '.join(files)}")
 
 
 if __name__ == "__main__":
