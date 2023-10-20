@@ -23,3 +23,9 @@
 -   Create 3 datasets with similar variables throughout. EX. Dataset 1 has time, length, and speed; Dataset 2 has speed, height, and width; and Dataset 3 has width, height, and length. 
 -   Import the data from the datasets and match like variables. 
 -   Create an output file(might do the terminal for now) that contains each variable found and lists which dataset it came from and the value of the variable
+
+### October 20 - November 12, 2023
+
+-   Create a web page for the visual dashboard, complete with interactive features that allow for variable change, analyzing a certain dataset, and displaying the current output. 
+-   Implement a notification system within the dashboard that will notify the user of the most recent changes within the dashboard, be that external or internal changes to a dataset.
+-   Find a way to keep track of the previous datasets for comparison with the new dataset within the notification system.  
