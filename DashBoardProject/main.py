@@ -1,5 +1,6 @@
 import csv
 import os
+from pprint import pprint
 
 
 def read_csv(filename):
@@ -18,13 +19,15 @@ def read_csv(filename):
         # Read and store the data
         for row in reader:
             for i, value in enumerate(row):
-                data[headers[i]].append(float(value))
+                # Strip whitespace from the value
+                stripped_value = value.strip()
+                # Append the stripped value to the respective list
+                data[headers[i]].append(float(stripped_value))
 
     return data
 
 
 def find_variable_locations_with_values(data_dict):
-    # Initialize a dictionary to store variable locations and values
     variable_data = {}
 
     # Iterate through each file's data to collect unique variable names
@@ -46,9 +49,24 @@ def find_variable_locations_with_values(data_dict):
     return variable_data
 
 
-def print_data(data):
-    for variable, values in data.items():
-        print(f"{variable}: {values}")
+def write_variable_data_to_file(variable_data, output_file, data_dict):
+    with open(output_file, "w") as file:
+        # Output data from each CSV file first
+        for variable, values in data_dict.items():
+            file.write(f"{variable}\n")
+            for var, var_data in values.items():
+                var_values = ", ".join(map(str, var_data))
+                file.write(f"{var}: {var_values}\n")
+            file.write("\n")
+
+        # Then, output the variable data for each variable
+        for var, data in variable_data.items():
+            locations = ", ".join(data["locations"])
+            file.write(f"\n{var} is found in: {locations}\n")
+
+            for i, location in enumerate(data["locations"]):
+                values = ", ".join(map(str, data["values"][i]))
+                file.write(f"{var} in {location}: {values}\n")
 
 
 def main():
@@ -61,23 +79,23 @@ def main():
     # Iterate over all CSV files in the directory
     for filename in os.listdir(directory):
         if filename.endswith(".csv"):
-            print(f"\nData from {filename}:")
             filepath = os.path.join(directory, filename)
             data = read_csv(filepath)
-            print_data(data)
             # Store data in the dictionary with the filename as the key
             data_dict[filename] = data
 
-    # Now you have data from all CSV files in data_dict for comparison or future use
-    # For example, you can access data from a specific file using data_dict["filename.csv"]
+    # Output file name
+    output_file = "output.txt"
 
+    # Call the function to write the data to the output file
     variable_data = find_variable_locations_with_values(data_dict)
-    for var, data in variable_data.items():
-        locations = ", ".join(data["locations"])
-        print(f"\n{var} is found in: {locations}")
-        for i, location in enumerate(data["locations"]):
-            values = ", ".join(map(str, data["values"][i]))  # Convert values to strings
-            print(f"{var} in {location}: {values}")
+    write_variable_data_to_file(variable_data, output_file, data_dict)
+
+    print("Contents of data_dict:")
+    pprint(data_dict)
+
+    print("\nContents of variable_data:")
+    pprint(variable_data)
 
 
 if __name__ == "__main__":
