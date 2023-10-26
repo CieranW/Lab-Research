@@ -4,6 +4,22 @@ import pandas as pd
 from pprint import pprint
 
 
+def scan_files():
+    input_directory = "newData"
+    # Create a dictionary to store data from each CSV file
+    data_dict = {}
+
+    # Iterate over all CSV files in the directory
+    for filename in os.listdir(input_directory):
+        if filename.endswith(".csv"):
+            filepath = os.path.join(input_directory, filename)
+            data = read_csv(filepath)
+            # Store data in the dictionary with the filename as the key
+            data_dict[filename] = data
+
+    return data_dict
+
+
 def read_csv(filename):
     data = {}  # Dictionary to store the data
 
@@ -70,6 +86,28 @@ def write_variable_data_to_file(variable_data, output_file, data_dict):
                 file.write(f"{var} in {location}: {values}\n")
 
 
+def print_data_to_terminal(variable_data, data_dict):
+    # Output data from each CSV file first
+    for variable, values in data_dict.items():
+        print(f"{variable}")
+        for var, var_data in values.items():
+            var_values = ", ".join(map(str, var_data))
+            print(f"{var}: {var_values}")
+
+        print("\n")
+
+    # Then, output the variable data for each variable
+    for var, data in variable_data.items():
+        locations = ", ".join(data["locations"])
+        print(f"{var} is found in: {locations}")
+
+        for i, location in enumerate(data["locations"]):
+            values = ", ".join(map(str, data["values"][i]))
+            print(f"{var} in {location}: {values}")
+
+        print("\n")
+
+
 def format_and_save(input_directory, output_directory):
     all_files = [f for f in os.listdir(input_directory) if f.endswith(".csv")]
 
@@ -81,36 +119,84 @@ def format_and_save(input_directory, output_directory):
         data.to_csv(output_file, header=True, index=False)
 
 
-def main():
-    # Directory containing your CSV files
-    directory = "newData"  # Directory path
+def compare_data(data_dict1, data_dict2):
+    # Find common variables in both data dictionaries
+    common_variables = set(data_dict1.keys()) & set(data_dict2.keys())
 
-    # Create a dictionary to store data from each CSV file
-    data_dict = {}
+    # Create dictionaries to store the differences
+    differences_in_data_dict1 = {}
+    differences_in_data_dict2 = {}
 
-    # Iterate over all CSV files in the directory
-    for filename in os.listdir(directory):
+    # Compare data in common variables
+    for variable in common_variables:
+        if data_dict1[variable] != data_dict2[variable]:
+            differences_in_data_dict1[variable] = data_dict1[variable]
+            differences_in_data_dict2[variable] = data_dict2[variable]
+
+    return differences_in_data_dict1, differences_in_data_dict2
+
+
+def compare():
+    input_directory = "newData"
+    output_directory = "oldData"
+
+    # Create dictionaries to store data from each location
+    data_dict1 = {}
+    data_dict2 = {}
+
+    # Iterate over all CSV files in the first directory
+    for filename in os.listdir(input_directory):
         if filename.endswith(".csv"):
-            filepath = os.path.join(directory, filename)
+            filepath = os.path.join(input_directory, filename)
             data = read_csv(filepath)
             # Store data in the dictionary with the filename as the key
-            data_dict[filename] = data
+            data_dict1[filename] = data
+
+    # Iterate over all CSV files in the second directory
+    for filename in os.listdir(output_directory):
+        if filename.endswith(".csv"):
+            filepath = os.path.join(output_directory, filename)
+            data = read_csv(filepath)
+            # Store data in the dictionary with the filename as the key
+            data_dict2[filename] = data
+
+    print("Data Differences Between Locations:")
+    differences1, differences2 = compare_data(data_dict1, data_dict2)
+
+    print("\nDifferences in Location 1:")
+    pprint(differences1)
+
+    print("\nDifferences in Location 2:")
+    pprint(differences2)
+
+
+def main():
+    # Sets the input and output directories
+    input_directory = "newData"
+    output_directory = "oldData"
 
     # Output file name
     output_file = "output.txt"
 
+    # Main dictionary to store data from each CSV file
+    data_dict = scan_files()
+
     # Call the function to write the data to the output file
     variable_data = find_variable_locations_with_values(data_dict)
     write_variable_data_to_file(variable_data, output_file, data_dict)
+    print_data_to_terminal(variable_data, data_dict)
 
-    print("Contents of data_dict:")
-    pprint(data_dict)
+    # For testing purposes
+    # print("Contents of data_dict:")
+    # pprint(data_dict)
 
-    print("\nContents of variable_data:")
-    pprint(variable_data)
+    # print("\nContents of variable_data:")
+    # pprint(variable_data)
 
-    input_directory = "newData"
-    output_directory = "oldData"
+    # Call the function to compare the data
+    compare()
+
+    # After performing the comparison, format and save the data
     format_and_save(input_directory, output_directory)
 
 
