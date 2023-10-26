@@ -168,3 +168,44 @@ def compare():
 
     print("\nDifferences in Location 2:")
     pprint(differences2)
+
+
+# TODO: Implement a system to modify data, access keys/values in the dictionary and change them
+def modify_data(data_dict):
+    pass
+
+
+# TODO: Implement a system to notify the user of the latest version and changes. Will be called at the start of the program
+def latest_version():
+    pass
+
+
+def questions_and_actions(variable_data, data_dict, input_directory, output_directory):
+    while True:
+        options()
+        question = input("What would you like to do? ")
+        if question == "4":
+            format_and_save(input_directory, output_directory)
+            break
+        elif question == "1":
+            print_data_to_terminal(variable_data, data_dict)
+        elif question == "2":
+            modify_data(data_dict)
+        elif question == "3":
+            compare()
+
+
+def options():
+    print("\n")
+    print("-" * 60)
+    print(
+        """
+    Options (type the number of the option):
+    1. Print data to terminal
+    2. Modify data
+    3. Display differences between databases
+    4. Quit
+          """
+    )
+    print("-" * 60)
+    print("\n")
