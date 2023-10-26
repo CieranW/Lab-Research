@@ -1,5 +1,6 @@
 import csv
 import os
+import pandas as pd
 from pprint import pprint
 
 
@@ -69,9 +70,20 @@ def write_variable_data_to_file(variable_data, output_file, data_dict):
                 file.write(f"{var} in {location}: {values}\n")
 
 
+def format_and_save(input_directory, output_directory):
+    all_files = [f for f in os.listdir(input_directory) if f.endswith(".csv")]
+
+    for input_file in all_files:
+        data = pd.read_csv(os.path.join(input_directory, input_file))
+        output_file = os.path.join(
+            output_directory, input_file
+        )  # Set the full output path
+        data.to_csv(output_file, header=True, index=False)
+
+
 def main():
     # Directory containing your CSV files
-    directory = "DashBoardProject"  # Replace with the actual directory path
+    directory = "newData"  # Directory path
 
     # Create a dictionary to store data from each CSV file
     data_dict = {}
@@ -96,6 +108,10 @@ def main():
 
     print("\nContents of variable_data:")
     pprint(variable_data)
+
+    input_directory = "newData"
+    output_directory = "oldData"
+    format_and_save(input_directory, output_directory)
 
 
 if __name__ == "__main__":
