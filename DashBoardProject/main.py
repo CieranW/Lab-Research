@@ -11,8 +11,8 @@ from data_operations import (
 
 def main():
     # Sets the input and output directories
-    input_directory = "newData"
-    output_directory = "oldData"
+    input_directory = "input"
+    output_directory = "output"
 
     # Output file name
     output_file = "output.txt"

@@ -66,6 +66,7 @@ def find_variable_locations_with_values(data_dict):
     return variable_data
 
 
+# Do we need this function?
 def write_variable_data_to_file(variable_data, output_file, data_dict):
     with open(output_file, "w") as file:
         # Output data from each CSV file first
@@ -96,7 +97,7 @@ def print_data_to_terminal(variable_data, data_dict):
 
         print("\n")
 
-    # Then, output the variable data for each variable
+    # Then, output the variable data for each variable along with the locations and values
     for var, data in variable_data.items():
         locations = ", ".join(data["locations"])
         print(f"{var} is found in: {locations}")
@@ -108,6 +109,7 @@ def print_data_to_terminal(variable_data, data_dict):
         print("\n")
 
 
+# Save the latest version of the data in the output directory
 def format_and_save(input_directory, output_directory):
     all_files = [f for f in os.listdir(input_directory) if f.endswith(".csv")]
 
@@ -172,16 +174,26 @@ def compare():
 
 # TODO: Implement a system to modify data, access keys/values in the dictionary and change them
 def modify_data(data_dict):
+    # Print out each file name
+    # Ask the user which file they want to modify
+    # Print out the keys and values in the file
+    # Ask the user which key they want to modify
+    # Ask the user what they want to change the value to
+    # Change the value
+    # Print out the new key and value
+    # Update the original file with the new value
+
     pass
 
 
-# TODO: Implement a system to notify the user of the latest version and changes. Will be called at the start of the program
+# TODO: Implement a system to notify the user of the latest version and changes. Will be called at the start of the program or after each action
 def latest_version():
     pass
 
 
 def questions_and_actions(variable_data, data_dict, input_directory, output_directory):
     while True:
+        latest_version()
         options()
         question = input("What would you like to do? ")
         if question == "4":
@@ -195,6 +207,7 @@ def questions_and_actions(variable_data, data_dict, input_directory, output_dire
             compare()
 
 
+# TODO: Modify so that the lines fill the terminal properly
 def options():
     print("\n")
     print("-" * 60)
@@ -204,7 +217,7 @@ def options():
     1. Print data to terminal
     2. Modify data
     3. Display differences between databases
-    4. Quit
+    4. Quit and save changes
           """
     )
     print("-" * 60)
