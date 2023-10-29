@@ -260,7 +260,7 @@ def print_options_from_file(file_path):
             print("-", "|", "-" * len(headers[1]))
 
             # Extract and print option lines
-            for line in lines[2:]:
+            for line in lines[1:]:
                 option_number, option_description = line.split("|")
                 print(option_number.strip(), "|", option_description.strip())
 
