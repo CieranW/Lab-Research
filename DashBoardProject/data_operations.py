@@ -5,7 +5,7 @@ from pprint import pprint
 
 
 def scan_files():
-    input_directory = "newData"
+    input_directory = "input"
     # Create a dictionary to store data from each CSV file
     data_dict = {}
 
@@ -172,18 +172,46 @@ def compare():
     pprint(differences2)
 
 
-# TODO: Implement a system to modify data, access keys/values in the dictionary and change them
 def modify_data(data_dict):
     # Print out each file name
-    # Ask the user which file they want to modify
-    # Print out the keys and values in the file
-    # Ask the user which key they want to modify
-    # Ask the user what they want to change the value to
-    # Change the value
-    # Print out the new key and value
-    # Update the original file with the new value
+    for filename in data_dict.keys():
+        print(f"Filename: {filename}")
+        # Now, you can loop through the variables in the current file (if needed)
+        print(f"Variables in {filename}:")
+        for variable in data_dict[filename]:
+            print(variable)
+        print()
 
-    pass
+    # Ask the user which file they want to modify
+    access_file = input("Which file would you like to access? (Enter the file name): ")
+    access_variables = input(
+        "Which variable would you like to modify? (Enter the variable name): "
+    )
+
+    # Print out the keys and values in the file
+    if access_file in data_dict and access_variables in data_dict[access_file]:
+        print(f"Values in {access_file}:")
+        print(data_dict[access_file][access_variables])
+        # Ask the user which value they want to modify
+        access_values = input(
+            "Which value would you like to modify? (Enter the value): "
+        )
+        # TODO: Figure out if we're accessing the index of the actual value itself. The index might be the smarter choice so perhaps we print out the index number alongside the values in the list. Then, we can ask the user which index they want to modify. Accessing and changing the values from there shouldn't be a problem. Additionally, we can add a check to see if the user entered a valid index number or if they would like to add a value to the list (a simple apend). We can also add a check to see if the user wants to remove a value from the list (a simple remove). We can also add a check to see if the user wants to change the entire list (a simple reassignment).
+        # Check if the value is in the list
+        if access_values in data_dict[access_file][access_variables]:
+            # Ask the user what they want to change the value to
+            new_value = input("What would you like to change the value to?: ")
+            # Find the index of the value in the list
+            index = data_dict[access_file][access_variables].index(access_values)
+            # Change the value in the list
+            data_dict[access_file][access_variables][index] = new_value
+            print(f"New values in {access_file}:")
+            print(data_dict[access_file][access_variables])
+        else:
+            print("The value you entered is not in the file.")
+
+    else:
+        print("The value you entered is not in the file.")
 
 
 # TODO: Implement a system to notify the user of the latest version and changes. Will be called at the start of the program or after each action
@@ -194,7 +222,7 @@ def latest_version():
 def questions_and_actions(variable_data, data_dict, input_directory, output_directory):
     while True:
         latest_version()
-        options()
+        print_options_from_file("options.txt")
         question = input("What would you like to do? ")
         if question == "4":
             format_and_save(input_directory, output_directory)
@@ -207,18 +235,37 @@ def questions_and_actions(variable_data, data_dict, input_directory, output_dire
             compare()
 
 
-# TODO: Modify so that the lines fill the terminal properly
-def options():
-    print("\n")
-    print("-" * 60)
-    print(
-        """
-    Options (type the number of the option):
-    1. Print data to terminal
-    2. Modify data
-    3. Display differences between databases
-    4. Quit and save changes
-          """
-    )
-    print("-" * 60)
-    print("\n")
+# TODO: Test run this function and verify the correct output
+def print_options_from_file(file_path):
+    try:
+        with open(file_path, "r") as file:
+            lines = file.readlines()
+            if len(lines) < 2:
+                print(
+                    "Invalid file format. The file should contain at least two lines."
+                )
+                return
+
+            # Extract headers
+            header_line = lines[1].strip()
+            headers = header_line.split("|")
+            if len(headers) != 2:
+                print(
+                    "Invalid header format. The header should contain two columns separated by '|'."
+                )
+                return
+
+            # Print headers
+            print("\nOptions:")
+            print("-", "|", "-" * len(headers[1]))
+
+            # Extract and print option lines
+            for line in lines[2:]:
+                option_number, option_description = line.split("|")
+                print(option_number.strip(), "|", option_description.strip())
+
+            # Print footer
+            print("-", "|", "-" * len(headers[1]), "\n")
+
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")

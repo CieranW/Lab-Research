@@ -1,0 +1,6 @@
+-|-----------------------------------------
+1| Print data to terminal
+2| Modify data
+3| Display differences between databases
+4| Quit and save changes
+-|-----------------------------------------
