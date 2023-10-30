@@ -191,18 +191,36 @@ def modify_data(data_dict):
     # Print out the keys and values in the file
     if access_file in data_dict and access_variables in data_dict[access_file]:
         print(f"Values in {access_file}:")
+        i = 1
+        for value in data_dict[access_file][access_variables]:
+            print(f"{i}: {value}")
+            i += 1
         print(data_dict[access_file][access_variables])
         # Ask the user which value they want to modify
-        access_values = input(
-            "Which value would you like to modify? (Enter the value): "
+        access_index = int(
+            input("Which value would you like to modify? (Enter the index number): ")
         )
         # TODO: Figure out if we're accessing the index of the actual value itself. The index might be the smarter choice so perhaps we print out the index number alongside the values in the list. Then, we can ask the user which index they want to modify. Accessing and changing the values from there shouldn't be a problem. Additionally, we can add a check to see if the user entered a valid index number or if they would like to add a value to the list (a simple apend). We can also add a check to see if the user wants to remove a value from the list (a simple remove). We can also add a check to see if the user wants to change the entire list (a simple reassignment).
+        for value in data_dict[access_file][access_variables]:
+            # TODO: Accessing the variable within the value list now works. Next step is figuring out how to change the value of the variables and then write the changes to the file. Additionally, are we changing all the values or just one, adding or removing a value, or changing the entire list?
+            # TODO: write another option file specifically for the modifying data function. This will allow the user to choose what they want to do with the data. They can change the entire list, change one value, add a value, or remove a value.
+            if data_dict[access_file][access_variables][access_index - 1] == value:
+                # Ask the user what they want to change the value to
+                new_value = input("What would you like to change the value to?: ")
+                # Find the index of the value in the list
+                index = data_dict[access_file][access_variables].index(access_index - 1)
+                # Change the value in the list
+                data_dict[access_file][access_variables][index] = new_value
+                print(f"New values in {access_file}:")
+                print(data_dict[access_file][access_variables])
+            else:
+                print("The value you entered is not in the file.")
         # Check if the value is in the list
-        if access_values in data_dict[access_file][access_variables]:
+        if access_index in data_dict[access_file][access_variables]:
             # Ask the user what they want to change the value to
             new_value = input("What would you like to change the value to?: ")
             # Find the index of the value in the list
-            index = data_dict[access_file][access_variables].index(access_values)
+            index = data_dict[access_file][access_variables].index(access_index)
             # Change the value in the list
             data_dict[access_file][access_variables][index] = new_value
             print(f"New values in {access_file}:")
@@ -235,7 +253,6 @@ def questions_and_actions(variable_data, data_dict, input_directory, output_dire
             compare()
 
 
-# TODO: Test run this function and verify the correct output
 def print_options_from_file(file_path):
     try:
         with open(file_path, "r") as file:
@@ -249,11 +266,6 @@ def print_options_from_file(file_path):
             # Extract headers
             header_line = lines[1].strip()
             headers = header_line.split("|")
-            if len(headers) != 2:
-                print(
-                    "Invalid header format. The header should contain two columns separated by '|'."
-                )
-                return
 
             # Print headers
             print("\nOptions:")
