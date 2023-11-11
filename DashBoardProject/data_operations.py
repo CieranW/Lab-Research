@@ -66,7 +66,7 @@ def find_variable_locations_with_values(data_dict):
     return variable_data
 
 
-# Do we need this function?
+# TODO: modify this function to work with the alert.txt file, keeping track of updates and changes
 def write_variable_data_to_file(variable_data, output_file, data_dict):
     with open(output_file, "w") as file:
         # Output data from each CSV file first
@@ -173,63 +173,152 @@ def compare():
 
 
 def modify_data(data_dict):
-    # Print out each file name
-    for filename in data_dict.keys():
-        print(f"Filename: {filename}")
-        # Now, you can loop through the variables in the current file (if needed)
-        print(f"Variables in {filename}:")
-        for variable in data_dict[filename]:
-            print(variable)
-        print()
+    while True:
+        # Print out each file name
+        for filename in data_dict.keys():
+            print(f"\nDataset: {filename}")
+            # Now, you can loop through the variables in the current file (if needed)
+            print(f"Variables in {filename}:")
+            for variable in data_dict[filename]:
+                print(variable)
 
-    # Ask the user which file they want to modify
-    access_file = input("Which file would you like to access? (Enter the file name): ")
-    access_variables = input(
-        "Which variable would you like to modify? (Enter the variable name): "
-    )
-
-    # Print out the keys and values in the file
-    if access_file in data_dict and access_variables in data_dict[access_file]:
-        print(f"Values in {access_file}:")
-        i = 1
-        for value in data_dict[access_file][access_variables]:
-            print(f"{i}: {value}")
-            i += 1
-        print(data_dict[access_file][access_variables])
-        # Ask the user which value they want to modify
-        access_index = int(
-            input("Which value would you like to modify? (Enter the index number): ")
+        print_options_from_file("TextFiles/modify_options.txt")
+        option = int(
+            input("Which option would you like to choose? (Enter the number): ")
         )
-        # TODO: Figure out if we're accessing the index of the actual value itself. The index might be the smarter choice so perhaps we print out the index number alongside the values in the list. Then, we can ask the user which index they want to modify. Accessing and changing the values from there shouldn't be a problem. Additionally, we can add a check to see if the user entered a valid index number or if they would like to add a value to the list (a simple apend). We can also add a check to see if the user wants to remove a value from the list (a simple remove). We can also add a check to see if the user wants to change the entire list (a simple reassignment).
-        for value in data_dict[access_file][access_variables]:
-            # TODO: Accessing the variable within the value list now works. Next step is figuring out how to change the value of the variables and then write the changes to the file. Additionally, are we changing all the values or just one, adding or removing a value, or changing the entire list?
-            # TODO: write another option file specifically for the modifying data function. This will allow the user to choose what they want to do with the data. They can change the entire list, change one value, add a value, or remove a value.
-            if data_dict[access_file][access_variables][access_index - 1] == value:
-                # Ask the user what they want to change the value to
-                new_value = input("What would you like to change the value to?: ")
-                # Find the index of the value in the list
-                index = data_dict[access_file][access_variables].index(access_index - 1)
-                # Change the value in the list
-                data_dict[access_file][access_variables][index] = new_value
-                print(f"New values in {access_file}:")
-                print(data_dict[access_file][access_variables])
-            else:
-                print("The value you entered is not in the file.")
-        # Check if the value is in the list
-        if access_index in data_dict[access_file][access_variables]:
-            # Ask the user what they want to change the value to
-            new_value = input("What would you like to change the value to?: ")
-            # Find the index of the value in the list
-            index = data_dict[access_file][access_variables].index(access_index)
-            # Change the value in the list
-            data_dict[access_file][access_variables][index] = new_value
-            print(f"New values in {access_file}:")
-            print(data_dict[access_file][access_variables])
-        else:
-            print("The value you entered is not in the file.")
+        if option == 1:
+            modify_dataset(data_dict)
+        elif option == 2:
+            modify_dataset_variable(data_dict)
+        elif option == 3:
+            break
 
-    else:
-        print("The value you entered is not in the file.")
+
+def modify_dataset(data_dict):
+    while True:
+        print_options_from_file("TextFiles/modify_dataset.txt")
+        option = int(
+            input("Which option would you like to choose? (Enter the number): ")
+        )
+        if option == 1:
+            # Ask the user what they want to name the new dataset
+            new_file = input("What would you like to name the new dataset?: ")
+            # Check if the file already exists
+            if new_file in data_dict:
+                print("The file already exists.")
+                continue
+            else:
+                # Check if the filename ends with ".csv". If not, add it to the end of the filename
+                if new_file.endswith(".csv") is False:
+                    new_file += ".csv"
+
+                # Create a new key in the dictionary
+                data_dict[new_file] = {}
+                # Ask the user what variables they want to add to the new dataset
+                new_variables = input(
+                    "What variables would you like to add to the new dataset? (Enter the variable names separated by a comma): "
+                )
+                # Split the variables into a list
+                new_variables = new_variables.split(", ")
+                # Go through each new variable and add values to the list
+                for variable in new_variables:
+                    # Add the new variables to the dictionary
+                    data_dict[new_file][variable] = []
+                    # Ask the user what values they want to add to the list
+                    new_values = input(
+                        f"What values would you like to add to {variable}? (Enter the values separated by a comma): "
+                    )
+                    # Split the values into a list
+                    new_values = new_values.split(", ")
+                    # Convert the values to integers
+                    new_values = [float(value) for value in new_values]
+                    # Add the values to the list
+                    data_dict[new_file][variable] = new_values
+
+                # Print out the new file and variables
+                print(f"New dataset: {new_file}")
+                print(f"New variables in {new_file}:")
+                for variable in data_dict[new_file]:
+                    print(variable)
+                print()
+        elif option == 2:
+            # Ask the user which file they want to remove
+            remove_file = input(
+                "Which dataset would you like to remove? (Enter the dataset): "
+            )
+            # Check if the file exists
+            if remove_file in data_dict:
+                # Remove the file from the dictionary
+                data_dict.pop(remove_file)
+                print(f"{remove_file} has been removed.")
+            else:
+                print("The file you entered does not exist.")
+        elif option == 3:
+            break
+
+
+def modify_dataset_variable(data_dict):
+    while True:
+        print_options_from_file("TextFiles/modify_in_dataset.txt")
+        option = int(
+            input("which option would you like to choose? (Enter the number):")
+        )
+        if option == 1:
+            pass
+        elif option == 2:
+            pass
+        elif option == 3:
+            pass
+        elif option == 4:
+            # Ask the user which file they want to modify
+            access_file = input(
+                "Which dataset would you like to access? (Enter the dataset): "
+            )
+            access_variables = input(
+                "Which variable would you like to modify? (Enter the variable name): "
+            )
+
+            # Print out the keys and values in the file
+            if access_file in data_dict and access_variables in data_dict[access_file]:
+                print(f"Values in {access_file}:")
+                i = 1
+                print(f"Index | {access_variables}")
+                for value in data_dict[access_file][access_variables]:
+                    print(f"{i} | {value}")
+                    i += 1
+                # Ask the user which value they want to modify
+                access_index = int(
+                    input(
+                        "Which value would you like to modify? (Enter the index number): "
+                    )
+                )
+                for value in data_dict[access_file][access_variables]:
+                    # Check if the value is in the list
+                    if (
+                        data_dict[access_file][access_variables][access_index - 1]
+                        == value
+                    ):
+                        print(
+                            f"Current value: {data_dict[access_file][access_variables][access_index - 1]}"
+                        )
+                        # Ask the user what they want to change the value to
+                        new_value = float(
+                            input("What would you like to change the value to?: ")
+                        )
+                        # Change the value in the list
+                        data_dict[access_file][access_variables][
+                            access_index - 1
+                        ] = new_value
+                        print(f"New values in {access_file}:")
+                        print(data_dict[access_file][access_variables])
+                        break
+                    else:
+                        print("The value you entered is not in the dataset.")
+
+        elif option == 5:
+            pass
+        elif option == 6:
+            break
 
 
 # TODO: Implement a system to notify the user of the latest version and changes. Will be called at the start of the program or after each action
@@ -240,7 +329,7 @@ def latest_version():
 def questions_and_actions(variable_data, data_dict, input_directory, output_directory):
     while True:
         latest_version()
-        print_options_from_file("options.txt")
+        print_options_from_file("TextFiles/options.txt")
         question = input("What would you like to do? ")
         if question == "4":
             format_and_save(input_directory, output_directory)
