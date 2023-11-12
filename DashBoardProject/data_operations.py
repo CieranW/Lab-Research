@@ -177,7 +177,6 @@ def modify_data(data_dict):
         # Print out each file name
         for filename in data_dict.keys():
             print(f"\nDataset: {filename}")
-            # Now, you can loop through the variables in the current file (if needed)
             print(f"Variables in {filename}:")
             for variable in data_dict[filename]:
                 print(variable)
@@ -242,6 +241,11 @@ def modify_dataset(data_dict):
                     print(variable)
                 print()
         elif option == 2:
+            print()
+            # Print out each dataset name
+            for dataset in data_dict.keys():
+                print(dataset)
+            print()
             # Ask the user which file they want to remove
             remove_file = input(
                 "Which dataset would you like to remove? (Enter the dataset): "
@@ -263,13 +267,116 @@ def modify_dataset_variable(data_dict):
         option = int(
             input("which option would you like to choose? (Enter the number):")
         )
+        # 1| Remove a variable from the list
+        # 2| Remove a value from the list
+        # 3| Add a new variable to the list
+        # 4| Add a new value to the list
+        # 5| Change a value in the list
+        # 6| Change all values in the list
+        # 7| Exit the process
         if option == 1:
-            pass
+            # Ask the user which file they want to modify
+            remove_file = input(
+                "Which dataset would you like to remove values from? (Enter the dataset): "
+            )
+            remove_variables = input(
+                "Which variable would you like to remove? (Enter the variable name): "
+            )
+            # Print out the keys and values in the file
+            if remove_file in data_dict and remove_variables in data_dict[remove_file]:
+                # Remove the variable from the dictionary
+                data_dict[remove_file].pop(remove_variables)
+            else:
+                print("The variable you entered does not exist.")
+
         elif option == 2:
-            pass
+            # Ask the user which file they want to modify
+            remove_file = input(
+                "Which dataset would you like to remove values from? (Enter the dataset): "
+            )
+            remove_variables = input(
+                "Which variable would you like to remove values from? (Enter the variable name): "
+            )
+            # Print out the keys and values in the file
+            if remove_file in data_dict and remove_variables in data_dict[remove_file]:
+                print(f"Values in {remove_file}:")
+                i = 1
+                print(f"Index | {remove_variables}")
+                for value in data_dict[remove_file][remove_variables]:
+                    print(f"{i} | {value}")
+                    i += 1
+                # Ask the user which value they want to remove
+                remove_index = int(
+                    input(
+                        "Which value would you like to remove? (Enter the index number): "
+                    )
+                )
+                for value in data_dict[remove_file][remove_variables]:
+                    # Check if the value is in the list
+                    if (
+                        data_dict[remove_file][remove_variables][remove_index - 1]
+                        == value
+                    ):
+                        # Remove the value from the list
+                        data_dict[remove_file][remove_variables].remove(value)
+                        print(f"New values in {remove_file}:")
+                        print(data_dict[remove_file][remove_variables])
+                        break
+                    else:
+                        print("The value you entered is not in the dataset.")
         elif option == 3:
-            pass
+            # Ask the user which file they want to modify
+            add_file = input(
+                "Which dataset would you like to add values to? (Enter the dataset): "
+            )
+            add_variables = input(
+                "Which variable would you like to add? (Enter the variable name): "
+            )
+            # Print out the keys and values in the file
+            if add_file in data_dict:
+                data_dict[add_file][add_variables] = []
+                # Ask the user what values they want to add to the list
+                new_values = input(
+                    f"What values would you like to add to {add_variables}? (Enter the values separated by a comma): "
+                )
+                # Split the values into a list
+                new_values = new_values.split(", ")
+                # Convert the values to integers
+                new_values = [float(value) for value in new_values]
+                # Add the values to the list
+                data_dict[add_file][add_variables] = new_values
+                # Print out the new file and variables
+                print(f"New variable in {add_file}: {add_variables}")
+                print(data_dict[add_file][add_variables])
+
+            else:
+                print("The variable you entered does not exist.")
         elif option == 4:
+            # Ask the user which file they want to modify
+            add_file = input(
+                "Which dataset would you like to add values to? (Enter the dataset): "
+            )
+            add_variables = input(
+                "Which variable would you like to add values to? (Enter the variable name): "
+            )
+            # Print out the keys and values in the file
+            if add_file in data_dict and add_variables in data_dict[add_file]:
+                # Ask the user what values they want to add to the list
+                new_values = input(
+                    f"What values would you like to add to {add_variables}? (Enter the values separated by a comma): "
+                )
+                # Split the values into a list
+                new_values = new_values.split(", ")
+                # Convert the values to integers
+                new_values = [float(value) for value in new_values]
+                # Add the values to the list
+                data_dict[add_file][add_variables].extend(new_values)
+                # Print out the new file and variables
+                print(f"New values in {add_file}:")
+                print(data_dict[add_file][add_variables])
+            else:
+                print("The variable you entered does not exist.")
+        elif option == 5:
             # Ask the user which file they want to modify
             access_file = input(
                 "Which dataset would you like to access? (Enter the dataset): "
@@ -315,9 +422,32 @@ def modify_dataset_variable(data_dict):
                     else:
                         print("The value you entered is not in the dataset.")
 
-        elif option == 5:
-            pass
         elif option == 6:
+            # Ask the user which file they want to modify
+            access_file = input(
+                "Which dataset would you like to access? (Enter the dataset): "
+            )
+            access_variables = input(
+                "Which variable would you like to modify? (Enter the variable name): "
+            )
+
+            # Print out the keys and values in the file
+            if access_file in data_dict and access_variables in data_dict[access_file]:
+                print(f"Values in {access_file}:")
+                i = 1
+                print(f"Variable: {access_variables}")
+                for value in data_dict[access_file][access_variables]:
+                    print(f"{value}")
+                    new_value = float(
+                        input("What would you like to change the value to?: ")
+                    )
+                    # Change the value in the list
+                    data_dict[access_file][access_variables][value] = new_value
+                print(f"New values in {access_file}:")
+                print(data_dict[access_file][access_variables])
+            else:
+                print("The variable you entered does not exist.")
+        elif option == 7:
             break
 
 

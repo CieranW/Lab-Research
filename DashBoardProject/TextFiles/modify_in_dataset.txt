@@ -1,7 +1,8 @@
 -|-----------------------------------------
-1| Remove all values in the list
+1| Remove a variable from the list
 2| Remove a value from the list
-3| Add a new value to the list
-4| Change a value in the list
-5| Change all values in the list
-6| Exit the process
+3| Add a variable to the list
+4| Add a new value to the list
+5| Change a value in the list
+6| Change all values in the list
+7| Exit the process
