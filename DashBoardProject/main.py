@@ -23,7 +23,7 @@ def main():
     variable_data = find_variable_locations_with_values(data_dict)
 
     # For testing purposes
-    print_data_to_terminal(variable_data, data_dict)
+    # print_data_to_terminal(variable_data, data_dict)
     # print("Contents of data_dict:")
     # pprint(data_dict)
 

@@ -88,31 +88,22 @@ def print_data_to_terminal(variable_data, data_dict):
         print("\n")
 
 
-# TODO: This function is not working properly. It is not saving the latest version of the data in the output directory. Check again to ensure that it writes the latest version of each file to the output directory.
 # Save the latest version of the data in the output directory
 def format_and_save(data_dict, output_directory):
-    write_variable_data_to_file(data_dict)
+    for file_name, data in data_dict.items():
+        with open(f"{output_directory}/{file_name}", "w") as file:
+            if not data:  # If the dictionary for a file is empty, skip writing it
+                continue
 
+            headers = ",".join(data.keys())
+            file.write(headers + "\n")
 
-# Imported this function from a previous version of the file. Going to have to modify it to work with the new data_dict format alongside the format_and_save function.
-def write_variable_data_to_file(variable_data, output_file, data_dict):
-    with open(output_file, "w") as file:
-        # Output data from each CSV file first
-        for variable, values in data_dict.items():
-            file.write(f"{variable}\n")
-            for var, var_data in values.items():
-                var_values = ", ".join(map(str, var_data))
-                file.write(f"{var}: {var_values}\n")
-            file.write("\n")
+            # Transpose the data matrix to iterate over rows instead of columns
+            rows = zip(*data.values())
 
-        # Then, output the variable data for each variable
-        for var, data in variable_data.items():
-            locations = ", ".join(data["locations"])
-            file.write(f"\n{var} is found in: {locations}\n")
-
-            for i, location in enumerate(data["locations"]):
-                values = ", ".join(map(str, data["values"][i]))
-                file.write(f"{var} in {location}: {values}\n")
+            for row in rows:
+                row_values = ",".join(str(value) for value in row)
+                file.write(row_values + "\n")
 
 
 def compare_data(data_dict1, data_dict2):
@@ -201,15 +192,14 @@ def modify_dataset(data_dict):
         if option == 1:
             # Ask the user what they want to name the new dataset
             new_file = input("What would you like to name the new dataset?: ")
+            # Check if the filename ends with ".csv". If not, add it to the end of the filename
+            if new_file.endswith(".csv") is False:
+                new_file += ".csv"
             # Check if the file already exists
             if new_file in data_dict:
                 print("The file already exists.")
                 continue
             else:
-                # Check if the filename ends with ".csv". If not, add it to the end of the filename
-                if new_file.endswith(".csv") is False:
-                    new_file += ".csv"
-
                 # Create a new key in the dictionary
                 data_dict[new_file] = {}
 
@@ -310,253 +300,268 @@ def modify_dataset_variable(data_dict):
         option = int(
             input("Which option would you like to choose? (Enter the number):")
         )
-        # Print out each file name for the user to choose
-        for filename in data_dict.keys():
-            print(filename)
+        # 7| Exit the process
+        if option == 7:
+            break
+        else:
+            # Print out each file name for the user to choose
+            for filename in data_dict.keys():
+                print(filename)
 
-        # Ask the user which file they want to modify
-        modify_file = input(
-            "Which dataset would you like to modify? (Enter the dataset): "
-        )
-        # Check if the filename ends with ".csv". If not, add it to the end of the filename
-        if modify_file.endswith(".csv") is False:
-            modify_file += ".csv"
-
-        # Print out the keys and values in the file
-        if modify_file in data_dict:
-            print(f"Variables in {modify_file}:")
-            for variable in data_dict[modify_file]:
-                print(variable)
-
-        # 1| Remove a variable from the list
-        if option == 1:
-            # Ask the user which variable they want to remove
-            remove_variables = input(
-                "Which variable would you like to remove? (Enter the variable name): "
+            # Ask the user which file they want to modify
+            modify_file = input(
+                "Which dataset would you like to modify? (Enter the dataset): "
             )
+            # Check if the filename ends with ".csv". If not, add it to the end of the filename
+            if modify_file.endswith(".csv") is False:
+                modify_file += ".csv"
 
-            if modify_file in data_dict and remove_variables in data_dict[modify_file]:
-                # Remove the variable from the dictionary
-                data_dict[modify_file].pop(remove_variables)
-
-                # Update the alert file with the most recent changes
-                message = "Removed " + remove_variables + " from " + modify_file + "."
-                alert(message)
-
-            else:
-                print("The variable you entered does not exist.")
-
-        # 2| Remove a value from the list
-        elif option == 2:
-            # Ask the user which variable they want to remove values from
-            remove_variables = input(
-                "Which variable would you like to remove values from? (Enter the variable name): "
-            )
-
-            # Print out the keys and values in the file
-            if modify_file in data_dict and remove_variables in data_dict[modify_file]:
-                print(f"Values in {modify_file}:")
-                print(f"Index | {remove_variables}")
-                for i, value in enumerate(
-                    data_dict[modify_file][remove_variables], start=1
-                ):
-                    print(f"{i} | {value}")
-
-                # Ask the user which value they want to remove
-                remove_index = int(
-                    input(
-                        "Which value would you like to remove? (Enter the index number): "
-                    )
-                )
-
-                for value in data_dict[modify_file][remove_variables]:
-                    # Check if the value is in the list
-                    if (
-                        data_dict[modify_file][remove_variables][remove_index - 1]
-                        == value
-                    ):
-                        # Remove the value from the list
-                        data_dict[modify_file][remove_variables].remove(value)
-                        print(f"New values in {modify_file}:")
-                        print(data_dict[modify_file][remove_variables])
-
-                        # Update the alert file with the most recent changes
-                        message = (
-                            "Removed "
-                            + value
-                            + " from "
-                            + remove_variables
-                            + " located in "
-                            + modify_file
-                            + "."
-                        )
-                        alert(message)
-                        break
-                    else:
-                        print("The value you entered is not in the dataset.")
-
-        # 3| Add a new variable to the list
-        elif option == 3:
-            # Ask the user which variable they want to add values to
-            add_variables = input(
-                "Which variable would you like to add? (Enter the variable name): "
-            )
             # Print out the keys and values in the file
             if modify_file in data_dict:
-                data_dict[modify_file][add_variables] = []
-                # Ask the user what values they want to add to the list
-                new_values = input(
-                    f"What values would you like to add to {add_variables}? (Enter the values separated by a comma): "
+                print(f"Variables in {modify_file}:")
+                for variable in data_dict[modify_file]:
+                    print(variable)
+
+            # 1| Remove a variable from the list
+            if option == 1:
+                # Ask the user which variable they want to remove
+                remove_variables = input(
+                    "Which variable would you like to remove? (Enter the variable name): "
                 )
-                # Split the values into a list
-                new_values = new_values.split(", ")
-                # Convert the values to integers
-                new_values = [float(value) for value in new_values]
-                # Add the values to the list
-                data_dict[modify_file][add_variables] = new_values
-                # Print out the new file and variables
-                print(f"New variable in {modify_file}: {add_variables}")
-                print(data_dict[modify_file][add_variables])
 
-                # Update the alert file with the most recent changes
-                message = (
-                    "Added a new variable, "
-                    + add_variables
-                    + " to "
-                    + modify_file
-                    + "."
-                )
-                alert(message)
-            else:
-                print("The variable you entered does not exist.")
+                if (
+                    modify_file in data_dict
+                    and remove_variables in data_dict[modify_file]
+                ):
+                    # Remove the variable from the dictionary
+                    data_dict[modify_file].pop(remove_variables)
 
-        # 4| Add a new value to the list
-        elif option == 4:
-            # Ask the user which variable they want to add values to
-            add_variables = input(
-                "Which variable would you like to add values to? (Enter the variable name): "
-            )
-            # Print out the keys and values in the file
-            if modify_file in data_dict and add_variables in data_dict[modify_file]:
-                # Ask the user what values they want to add to the list
-                new_values = input(
-                    f"What values would you like to add to {add_variables}? (Enter the values separated by a comma): "
-                )
-                # Split the values into a list
-                new_values = new_values.split(", ")
-                # Convert the values to integers
-                new_values = [float(value) for value in new_values]
-                # Add the values to the list
-                data_dict[modify_file][add_variables].extend(new_values)
-                # Print out the new file and variables
-                print(f"New values in {modify_file}:")
-                print(data_dict[modify_file][add_variables])
-
-                # Update the alert file with the most recent changes
-                message = (
-                    "Added new values to "
-                    + add_variables
-                    + ", located in "
-                    + modify_file
-                    + "."
-                )
-                alert(message)
-            else:
-                print("The variable you entered does not exist.")
-
-        # 5| Change a value in the list
-        elif option == 5:
-            # Ask the user which variable they want to modify
-            access_variables = input(
-                "Which variable would you like to modify? (Enter the variable name): "
-            )
-
-            # Print out the keys and values in the file
-            if modify_file in data_dict and access_variables in data_dict[modify_file]:
-                print(f"Values in {modify_file}:")
-                i = 1
-                print(f"Index | {access_variables}")
-                for value in data_dict[modify_file][access_variables]:
-                    print(f"{i} | {value}")
-                    i += 1
-                # Ask the user which value they want to modify
-                access_index = int(
-                    input(
-                        "Which value would you like to modify? (Enter the index number): "
+                    # Update the alert file with the most recent changes
+                    message = (
+                        "Removed " + remove_variables + " from " + modify_file + "."
                     )
+                    alert(message)
+
+                else:
+                    print("The variable you entered does not exist.")
+
+            # 2| Remove a value from the list
+            elif option == 2:
+                # Ask the user which variable they want to remove values from
+                remove_variables = input(
+                    "Which variable would you like to remove values from? (Enter the variable name): "
                 )
-                for value in data_dict[modify_file][access_variables]:
-                    # Check if the value is in the list
-                    if (
-                        data_dict[modify_file][access_variables][access_index - 1]
-                        == value
+
+                # Print out the keys and values in the file
+                if (
+                    modify_file in data_dict
+                    and remove_variables in data_dict[modify_file]
+                ):
+                    print(f"Values in {modify_file}:")
+                    print(f"Index | {remove_variables}")
+                    for i, value in enumerate(
+                        data_dict[modify_file][remove_variables], start=1
                     ):
-                        print(
-                            f"Current value: {data_dict[modify_file][access_variables][access_index - 1]}"
+                        print(f"{i} | {value}")
+
+                    # Ask the user which value they want to remove
+                    remove_index = int(
+                        input(
+                            "Which value would you like to remove? (Enter the index number): "
                         )
-                        # Ask the user what they want to change the value to
+                    )
+
+                    for value in data_dict[modify_file][remove_variables]:
+                        # Check if the value is in the list
+                        if (
+                            data_dict[modify_file][remove_variables][remove_index - 1]
+                            == value
+                        ):
+                            # Remove the value from the list
+                            data_dict[modify_file][remove_variables].remove(value)
+                            print(f"New values in {modify_file}:")
+                            print(data_dict[modify_file][remove_variables])
+
+                            # Update the alert file with the most recent changes
+                            message = (
+                                "Removed "
+                                + str(value)
+                                + " from "
+                                + remove_variables
+                                + " located in "
+                                + modify_file
+                                + "."
+                            )
+                            alert(message)
+                            break
+                        else:
+                            print("The value you entered is not in the dataset.")
+
+            # 3| Add a new variable to the list
+            elif option == 3:
+                # Ask the user which variable they want to add values to
+                add_variables = input(
+                    "Which variable would you like to add? (Enter the variable name): "
+                )
+                # Print out the keys and values in the file
+                if modify_file in data_dict:
+                    data_dict[modify_file][add_variables] = []
+                    # Ask the user what values they want to add to the list
+                    new_values = input(
+                        f"What values would you like to add to {add_variables}? (Enter the values separated by a comma): "
+                    )
+                    # Split the values into a list
+                    new_values = new_values.split(", ")
+                    # Convert the values to integers
+                    new_values = [float(value) for value in new_values]
+                    # Add the values to the list
+                    data_dict[modify_file][add_variables] = new_values
+                    # Print out the new file and variables
+                    print(f"New variable in {modify_file}: {add_variables}")
+                    print(data_dict[modify_file][add_variables])
+
+                    # Update the alert file with the most recent changes
+                    message = (
+                        "Added a new variable, "
+                        + add_variables
+                        + " to "
+                        + modify_file
+                        + "."
+                    )
+                    alert(message)
+                else:
+                    print("The variable you entered does not exist.")
+
+            # 4| Add a new value to the list
+            elif option == 4:
+                # Ask the user which variable they want to add values to
+                add_variables = input(
+                    "Which variable would you like to add values to? (Enter the variable name): "
+                )
+                # Print out the keys and values in the file
+                if modify_file in data_dict and add_variables in data_dict[modify_file]:
+                    # Ask the user what values they want to add to the list
+                    new_values = input(
+                        f"What values would you like to add to {add_variables}? (Enter the values separated by a comma): "
+                    )
+                    # Split the values into a list
+                    new_values = new_values.split(", ")
+                    # Convert the values to integers
+                    new_values = [float(value) for value in new_values]
+                    # Add the values to the list
+                    data_dict[modify_file][add_variables].extend(new_values)
+                    # Print out the new file and variables
+                    print(f"New values in {modify_file}:")
+                    print(data_dict[modify_file][add_variables])
+
+                    # Update the alert file with the most recent changes
+                    message = (
+                        "Added new values to "
+                        + add_variables
+                        + ", located in "
+                        + modify_file
+                        + "."
+                    )
+                    alert(message)
+                else:
+                    print("The variable you entered does not exist.")
+
+            # 5| Change a value in the list
+            elif option == 5:
+                # Ask the user which variable they want to modify
+                access_variables = input(
+                    "Which variable would you like to modify? (Enter the variable name): "
+                )
+
+                # Print out the keys and values in the file
+                if (
+                    modify_file in data_dict
+                    and access_variables in data_dict[modify_file]
+                ):
+                    print(f"Values in {modify_file}:")
+                    i = 1
+                    print(f"Index | {access_variables}")
+                    for value in data_dict[modify_file][access_variables]:
+                        print(f"{i} | {value}")
+                        i += 1
+                    # Ask the user which value they want to modify
+                    access_index = int(
+                        input(
+                            "Which value would you like to modify? (Enter the index number): "
+                        )
+                    )
+                    for value in data_dict[modify_file][access_variables]:
+                        # Check if the value is in the list
+                        if (
+                            data_dict[modify_file][access_variables][access_index - 1]
+                            == value
+                        ):
+                            print(
+                                f"Current value: {data_dict[modify_file][access_variables][access_index - 1]}"
+                            )
+                            # Ask the user what they want to change the value to
+                            new_value = float(
+                                input("What would you like to change the value to?: ")
+                            )
+                            # Change the value in the list
+                            data_dict[modify_file][access_variables][
+                                access_index - 1
+                            ] = new_value
+                            print(f"New values in {modify_file}:")
+                            print(data_dict[modify_file][access_variables])
+
+                            # Update the alert file with the most recent changes
+                            message = (
+                                "Changed the value of "
+                                + str(value)
+                                + " to "
+                                + str(new_value)
+                                + " in "
+                                + modify_file
+                                + "."
+                            )
+                            alert(message)
+                            break
+
+            # 6| Change all values in the list
+            elif option == 6:
+                # Ask the user which variable they want to modify
+                access_variables = input(
+                    "Which variable would you like to modify? (Enter the variable name): "
+                )
+
+                # Print out the keys and values in the file
+                if (
+                    modify_file in data_dict
+                    and access_variables in data_dict[modify_file]
+                ):
+                    print(f"Values in {modify_file}:")
+                    i = 1
+                    print(f"Variable: {access_variables}")
+                    # Change the value in the list
+                    for idx, value in enumerate(
+                        data_dict[modify_file][access_variables]
+                    ):
+                        print(f"{value}")
                         new_value = float(
                             input("What would you like to change the value to?: ")
                         )
-                        # Change the value in the list
-                        data_dict[modify_file][access_variables][
-                            access_index - 1
-                        ] = new_value
-                        print(f"New values in {modify_file}:")
-                        print(data_dict[modify_file][access_variables])
+                        # Change the value in the list using the index
+                        data_dict[modify_file][access_variables][idx] = new_value
+                    print(f"New values in {modify_file}:")
+                    print(data_dict[modify_file][access_variables])
 
-                        # Update the alert file with the most recent changes
-                        message = (
-                            "Changed the value of "
-                            + value
-                            + " to "
-                            + new_value
-                            + " in "
-                            + modify_file
-                            + "."
-                        )
-                        alert(message)
-                        break
-                    else:
-                        print("The value you entered is not in the dataset.")
-
-        # 6| Change all values in the list
-        elif option == 6:
-            # Ask the user which variable they want to modify
-            access_variables = input(
-                "Which variable would you like to modify? (Enter the variable name): "
-            )
-
-            # Print out the keys and values in the file
-            if modify_file in data_dict and access_variables in data_dict[modify_file]:
-                print(f"Values in {modify_file}:")
-                i = 1
-                print(f"Variable: {access_variables}")
-                for value in data_dict[modify_file][access_variables]:
-                    print(f"{value}")
-                    new_value = float(
-                        input("What would you like to change the value to?: ")
+                    # Update the alert file with the most recent changes
+                    message = (
+                        "Changed the values of "
+                        + access_variables
+                        + " in "
+                        + modify_file
+                        + "."
                     )
-                    # Change the value in the list
-                    data_dict[modify_file][access_variables][value] = new_value
-                print(f"New values in {modify_file}:")
-                print(data_dict[modify_file][access_variables])
-
-                # Update the alert file with the most recent changes
-                message = (
-                    "Changed the values of "
-                    + access_variables
-                    + " in "
-                    + modify_file
-                    + "."
-                )
-                alert(message)
-            else:
-                print("The variable you entered does not exist.")
-
-        # 7| Exit the process
-        elif option == 7:
-            break
+                    alert(message)
+                else:
+                    print("The variable you entered does not exist.")
 
 
 # TODO: Implement a system to notify the user of the latest version and changes. Will be called at the start of the program or after each action
@@ -582,9 +587,32 @@ def alert(alert_message):
         file.write(alert_message + "\n")
 
 
+# To view specific datasets
+def print_specific_dataset(data_dict):
+    # Print the keys of the data_dict
+    print("Available datasets:")
+    for key in data_dict.keys():
+        print(key)
+
+    user_input_key = input("Which dataset would you like to view?")
+
+    # Check if the dataset has ".csv" at the end
+    if not user_input_key.endswith(".csv"):
+        user_input_key += ".csv"
+    # Check if the user-input key exists in the data_dict
+    if user_input_key in data_dict:
+        values = data_dict[user_input_key]
+        print(f"{user_input_key}")
+        for var, var_data in values.items():
+            var_values = ", ".join(map(str, var_data))
+            print(f"{var}: {var_values}")
+        print("\n")
+    else:
+        print(f"The key '{user_input_key}' does not exist in the dictionary.")
+
+
 def questions_and_actions(variable_data, data_dict, input_directory, output_directory):
     while True:
-        latest_version("TextFiles/alert.txt")
         print_options_from_file("TextFiles/options.txt")
         question = int(input("What would you like to do? "))
         # 1| Print data to terminal
@@ -603,11 +631,9 @@ def questions_and_actions(variable_data, data_dict, input_directory, output_dire
         elif question == 3:
             compare()
         elif question == 4:
-            # TODO: Implement a system to view a dataset
-            pass
+            print_specific_dataset(data_dict)
         elif question == 5:  # TODO: Check again.
             latest_version("TextFiles/alert.txt")
-            pass
 
 
 def print_options_from_file(file_path):
